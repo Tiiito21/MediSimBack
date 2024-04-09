@@ -1,4 +1,4 @@
-const { createUser, logIn, getProcedures, checkUser } = require('./database');
+const { createUser, logIn, createClass, getProcedures, getClasses, checkUser } = require('./database');
 const { checkEmail } = require('./utils');
 
 require('dotenv').config();
@@ -69,16 +69,38 @@ app.post('/login', async (req, res) => {
   }
 })
 
+app.post('/createClass', async (req, res) => {
+  const { name, teacher_id } = req.body;
+  try {
+    const classes = await createClass(name, teacher_id);
+    res.send(classes);
+  } catch (error) {
+    console.error('Error creating class:', error);
+    res.status(500).send('Error creating class');
+  }
+})
+
 app.post('/getProcedures', async (req, res) => {
   const { userid } = req.body;
   try {
     const procedures = await getProcedures(userid);
-    res.send(procedures);
+    res.status(200).send(procedures);
   } catch (error) {
     console.error('Error getting procedures:', error);
     res.status(500).send('Error getting procedures');
   }
 
+})
+
+app.post('/getClasses', async (req, res) => {
+  const { userid } = req.body;
+  try {
+    const classes = await getClasses(userid);
+    res.status(200).send(classes);
+  } catch (error) {
+    console.error('Error getting classes:', error);
+    res.status(500).send('Error getting classes');
+  }
 })
 
 app.listen(process.env.PORT, () => {

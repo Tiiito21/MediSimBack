@@ -94,6 +94,27 @@ const logIn = async (email, password) => {
   
 }
 
+const createClass = async (name, teacher_id) => {
+  let client;
+  try {
+    client = await pool.connect();
+    console.log("Conexion exitosa")
+
+    await client.query('BEGIN');
+    await client.query('INSERT INTO classes (name, teacher_id) VALUES ($1, $2)', [name, teacher_id]);
+    await client.query('COMMIT');
+  } catch (error) {
+    if(client){
+      await client.query('ROLLBACK');
+    }
+      throw error;
+  } finally {
+    if(client){
+      client.release();
+    }
+  }
+}
+
 
 //Get all procedures
 const getProcedures = async (userid) => {
@@ -104,6 +125,23 @@ const getProcedures = async (userid) => {
     console.log("Conexion exitosa")
 
     const res = await client.query('SELECT id, name, succes FROM procedures WHERE user = $1', [userid]);
+    return res.rows;
+  } finally {
+    if(client){
+      client.release();
+    }
+  }
+}
+
+//Get all procedures
+const getClasses = async (userid) => {
+
+  let client;
+  try {
+    client = await pool.connect();
+    console.log("Conexion exitosa")
+
+    const res = await client.query('SELECT classes.name FROM classes JOIN students_classes ON students_classes.class_id = students_classes.class_id WHERE students_classes.user_id = $1', [userid]);
     return res.rows;
   } finally {
     if(client){
@@ -128,4 +166,4 @@ const checkUser = async (email, password) => {
   }
 }
 
-module.exports = { createUser, logIn, getProcedures, checkUser };
+module.exports = { createUser, logIn, createClass, getProcedures, getClasses, checkUser };
