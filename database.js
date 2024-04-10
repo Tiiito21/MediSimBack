@@ -96,6 +96,7 @@ const logIn = async (email, password) => {
 
 const createClass = async (name, teacher_id) => {
   let client;
+
   try {
     client = await pool.connect();
     console.log("Conexion exitosa")
@@ -103,6 +104,30 @@ const createClass = async (name, teacher_id) => {
     await client.query('BEGIN');
     await client.query('INSERT INTO classes (name, teacher_id) VALUES ($1, $2)', [name, teacher_id]);
     await client.query('COMMIT');
+  } catch (error) {
+    if(client){
+      await client.query('ROLLBACK');
+    }
+      throw error;
+  } finally {
+    if(client){
+      client.release();
+    }
+  }
+}
+
+//Create a new procedure in the history
+const createProcedure = async (procedureName, date, userid, score, errors, time) => {
+  let client;
+
+  try {
+    client = await pool.connect();
+    console.log("Conexion exitosa")
+
+    await client.query('BEGIN');
+    await client.query('INSERT INTO procedures (procedureName, date, userid, score, errors, time) VALUES ($1, $2, $3, $4, $5, $6)', [procedureName, date, userid, score, errors, time]);
+    await client.query('COMMIT');
+    return true;
   } catch (error) {
     if(client){
       await client.query('ROLLBACK');
@@ -166,4 +191,4 @@ const checkUser = async (email, password) => {
   }
 }
 
-module.exports = { createUser, logIn, createClass, getProcedures, getClasses, checkUser };
+module.exports = { createUser, logIn, createClass, createProcedure, getProcedures, getClasses, checkUser };

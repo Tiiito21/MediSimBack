@@ -1,4 +1,4 @@
-const { createUser, logIn, createClass, getProcedures, getClasses, checkUser } = require('./database');
+const { createUser, logIn, createClass, createProcedure, getProcedures, getClasses, checkUser } = require('./database');
 const { checkEmail } = require('./utils');
 
 require('dotenv').config();
@@ -77,6 +77,22 @@ app.post('/createClass', async (req, res) => {
   } catch (error) {
     console.error('Error creating class:', error);
     res.status(500).send('Error creating class');
+  }
+})
+
+app.post('/createProcedure', async (req, res) => {
+  const { procedureName, date, userid, score, errors, time } = req.body;
+
+  if(!procedureName || !date || !userid || !score || !errors || !time){
+    res.status(400).send('Falta algun campo');
+    return;
+  }
+  try {
+    const procedure = await createProcedure(procedureName, date, userid, score, errors, time);
+    res.send(procedure);
+  } catch (error) {
+    console.error('Error creating procedure:', error);
+    res.status(500).send('Error creating procedure');
   }
 })
 
