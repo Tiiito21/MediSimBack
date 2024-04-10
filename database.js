@@ -168,7 +168,7 @@ const getProcedures = async (userid) => {
     client = await pool.connect();
     console.log("Conexion exitosa")
 
-    const res = await client.query('SELECT procedurename, date, score FROM procedures WHERE userid = $1', [userid]);
+    const res = await client.query('SELECT id, procedurename, date, score FROM procedures WHERE userid = $1', [userid]);
     return res.rows;
   } finally {
     if(client){
