@@ -1,4 +1,4 @@
-const { createUser, logIn, createClass, createProcedure, getProcedures, getClasses, checkUser } = require('./database');
+const { createUser, logIn, createClass, createProcedure, getProcedure, getProcedures, getClasses, checkUser } = require('./database');
 const { checkEmail } = require('./utils');
 
 require('dotenv').config();
@@ -89,6 +89,7 @@ app.post('/createProcedure', async (req, res) => {
   }
   try {
     const procedure = await createProcedure(procedureName, date, userid, score, errors, time);
+    console.log(procedure);
     res.send(procedure);
   } catch (error) {
     console.error('Error creating procedure:', error);
@@ -96,8 +97,21 @@ app.post('/createProcedure', async (req, res) => {
   }
 })
 
-app.post('/getProcedures', async (req, res) => {
-  const { userid } = req.body;
+app.get('/getProcedure/:id', async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    const procedure = await getProcedure(id);
+    res.status(200).send(procedure);
+  } catch (error) {
+    console.error('Error getting procedure:', error);
+    res.status(500).send('Error getting procedures');
+  }
+
+})
+
+app.get('/getProcedures/:userid', async (req, res) => {
+  const userid = req.params.userid;
   try {
     const procedures = await getProcedures(userid);
     res.status(200).send(procedures);
@@ -108,8 +122,10 @@ app.post('/getProcedures', async (req, res) => {
 
 })
 
-app.post('/getClasses', async (req, res) => {
-  const { userid } = req.body;
+
+
+app.get('/getClasses/:userid', async (req, res) => {
+  const userid = req.params.userid;
   try {
     const classes = await getClasses(userid);
     res.status(200).send(classes);

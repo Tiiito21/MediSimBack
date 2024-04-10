@@ -127,12 +127,31 @@ const createProcedure = async (procedureName, date, userid, score, errors, time)
     await client.query('BEGIN');
     await client.query('INSERT INTO procedures (procedureName, date, userid, score, errors, time) VALUES ($1, $2, $3, $4, $5, $6)', [procedureName, date, userid, score, errors, time]);
     await client.query('COMMIT');
-    return true;
+
+    const res = await client.query('SELECT id, userid FROM procedures WHERE procedureName = $1 AND date = $2 AND userid = $3', [procedureName, date, userid]);
+    return res.rows[0];
   } catch (error) {
     if(client){
       await client.query('ROLLBACK');
     }
       throw error;
+  } finally {
+    if(client){
+      client.release();
+    }
+  }
+}
+
+//Get all procedures
+const getProcedure = async (id) => {
+
+  let client;
+  try {
+    client = await pool.connect();
+    console.log("Conexion exitosa")
+
+    const res = await client.query('SELECT procedurename, date, score, errors, time FROM procedures WHERE id = $1', [id]);
+    return res.rows[0];
   } finally {
     if(client){
       client.release();
@@ -149,7 +168,7 @@ const getProcedures = async (userid) => {
     client = await pool.connect();
     console.log("Conexion exitosa")
 
-    const res = await client.query('SELECT id, name, succes FROM procedures WHERE user = $1', [userid]);
+    const res = await client.query('SELECT procedurename, date, score FROM procedures WHERE userid = $1', [userid]);
     return res.rows;
   } finally {
     if(client){
@@ -191,4 +210,4 @@ const checkUser = async (email, password) => {
   }
 }
 
-module.exports = { createUser, logIn, createClass, createProcedure, getProcedures, getClasses, checkUser };
+module.exports = { createUser, logIn, createClass, createProcedure, getProcedure, getProcedures, getClasses, checkUser };
