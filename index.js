@@ -39,8 +39,8 @@ app.post('/register', async (req, res) => {
 
     if (await checkUser(email, password) == false) {
       try {
-        await createUser(email, password, type, name);
-        res.status(200).send('Usuario Creado');
+        const user = await createUser(email, password, type, name);
+        res.status(200).send(user);
       } catch (error) {
         console.error('Error creando el usuario:', error);
         res.status(500).send('Error creando el usuario');

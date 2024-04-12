@@ -34,6 +34,11 @@ const createUser = async ( email, password, type, name) => {
     await client.query('BEGIN');
     await client.query('INSERT INTO users (userid, email, password, type, name) VALUES ($1, $2, $3, $4, $5)', [id, email, cryptedPassword, type, name]);
     await client.query('COMMIT');
+
+    const res = await client.query('SELECT userid, email, type, name FROM users WHERE email = $1', [email]);
+    if(res.rows.length == 1){
+      return res.rows[0];
+    }
   } catch (error) {
     if(client){
       await client.query('ROLLBACK');
